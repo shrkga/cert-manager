@@ -1,0 +1,26 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: dtzar/helm-kubectl:3.13
+  variables:
+    KUBE_CONTEXT: otus/search_engine_deploy:yc-k8s
+    KUBE_NAMESPACE: cert-manager
+  before_script:
+    - helm repo add jetstack https://charts.jetstack.io
+    - helm repo update
+    - kubectl config use-context ${KUBE_CONTEXT}
+  script:
+    - echo "Deploy ${KUBE_NAMESPACE}"
+    - helm upgrade --install
+      --namespace cert-manager --create-namespace
+      --version ${CI_COMMIT_TAG}
+      --set installCRDs=true
+      cert-manager jetstack/cert-manager
+    - kubectl apply -f issuers.yaml
+    - kubectl get Issuers,ClusterIssuers,Certificates,CertificateRequests,Orders,Challenges --all-namespaces
+  only:
+    - tags
+  except:
+    - branches
