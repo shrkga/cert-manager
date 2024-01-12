@@ -5,7 +5,6 @@ deploy:
   stage: deploy
   image: dtzar/helm-kubectl:3.13
   variables:
-    KUBE_CONTEXT: otus/search_engine_deploy:yc-k8s
     KUBE_NAMESPACE: cert-manager
   before_script:
     - helm repo add jetstack https://charts.jetstack.io
