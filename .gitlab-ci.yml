@@ -1,9 +1,11 @@
 stages:
   - deploy
+  - apply
+
+image: dtzar/helm-kubectl:3.13
 
 deploy:
   stage: deploy
-  image: dtzar/helm-kubectl:3.13
   variables:
     KUBE_NAMESPACE: cert-manager
   before_script:
@@ -12,14 +14,26 @@ deploy:
     - kubectl config use-context ${KUBE_CONTEXT}
   script:
     - echo "Deploy ${KUBE_NAMESPACE}"
-    - helm upgrade --install
-      --namespace cert-manager --create-namespace
-      --version ${CI_COMMIT_TAG}
-      --set installCRDs=true
-      cert-manager jetstack/cert-manager
-    - kubectl apply -f issuers.yaml
+    - helm upgrade --install --wait --atomic
+        --namespace "${KUBE_NAMESPACE}" --create-namespace
+        --version ${CI_COMMIT_TAG}
+        --set installCRDs=true
+        cert-manager jetstack/cert-manager
     - kubectl get Issuers,ClusterIssuers,Certificates,CertificateRequests,Orders,Challenges --all-namespaces
   only:
     - tags
   except:
     - branches
+
+apply:
+  stage: apply
+  before_script:
+    - kubectl config use-context ${KUBE_CONTEXT}
+  script:
+    - echo "Apply Let's Encrypt Issuers"
+    - kubectl apply -f issuers.yaml
+  only:
+    - main
+    - tags
+  except:
+    - triggers
