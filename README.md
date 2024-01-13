@@ -1,6 +1,6 @@
 # Ingress-NGINX и Cert-manager
 
-> [Основное README проекта здесь](/otus/search_engine_deploy/-/blob/main/README.md)
+> **Основное README проекта см. в репозитории `otus/search_engine_deploy`**
 
 Подключение к веб-интерфейсам приложения и системы мониторинга осуществляется через сетевой балансировщик на базе контроллера Ingress-NGINX по протоколу `https` с использованием TLS сертификатов Let's Encrypt.
 
